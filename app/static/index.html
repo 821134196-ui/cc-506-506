@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>馆内展签更换管理系统</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark"></span>
+    <div>
+      <h1>馆内展签更换管理</h1>
+      <p class="sub">提交 · 校对 · 编号核对 · 打印 · 现场扫码复核</p>
+    </div>
+  </div>
+  <div class="actor">
+    <label for="actorSel">当前操作人</label>
+    <select id="actorSel"></select>
+    <span id="actorRole" class="role-badge"></span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="catalog" class="tab active">展品目录</button>
+  <button data-tab="versions" class="tab">展签版本 / 校对</button>
+  <button data-tab="print" class="tab">打印清单</button>
+  <button data-tab="scan" class="tab">现场扫码</button>
+  <button data-tab="records" class="tab">撤换记录</button>
+</nav>
+
+<main>
+  <!-- 展品目录 -->
+  <section id="tab-catalog" class="panel active">
+    <div class="panel-head">
+      <h2>展品目录与展柜绑定</h2>
+      <p class="hint">展柜列表同时显示<strong>当前版次</strong>与<strong>待换版次</strong>；同一展柜同时只允许一个有效展签。</p>
+    </div>
+    <table class="grid">
+      <thead><tr>
+        <th>展柜</th><th>展厅</th><th>展品编号</th><th>展品名称</th>
+        <th>当前有效版次</th><th>待换版次</th><th>操作</th>
+      </tr></thead>
+      <tbody id="catalogBody"></tbody>
+    </table>
+
+    <h3 class="block-title">当前有效展签（每柜唯一）</h3>
+    <div id="activeList" class="cards"></div>
+  </section>
+
+  <!-- 版本与校对 -->
+  <section id="tab-versions" class="panel">
+    <div class="panel-head">
+      <h2>展签版本与校对</h2>
+      <div class="row">
+        <label>展品</label>
+        <select id="versionExhibit"></select>
+        <button class="btn copper" id="newVersionBtn">＋ 策展人提交新版</button>
+      </div>
+    </div>
+
+    <div id="versionLayout" class="v-layout">
+      <div class="v-list">
+        <table class="grid compact">
+          <thead><tr><th>版次</th><th>状态</th><th>校对</th><th>编号核对</th></tr></thead>
+          <tbody id="versionList"></tbody>
+        </table>
+      </div>
+      <div class="v-detail" id="versionDetail">
+        <p class="empty">从左侧选择一个版本查看并排修订、批注与校对操作。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 打印清单 -->
+  <section id="tab-print" class="panel">
+    <div class="panel-head">
+      <h2>打印清单</h2>
+      <p class="hint">打印预览按真实标签比例 <strong>100mm × 60mm</strong>；样图保存在本地 <code>data/samples/</code>。校对/核对失效的版本无法打印。</p>
+    </div>
+    <div class="print-layout">
+      <table class="grid compact">
+        <thead><tr><th>#</th><th>展品</th><th>版次</th><th>打印人</th><th>时间</th><th>样图</th></tr></thead>
+        <tbody id="printBody"></tbody>
+      </table>
+      <div>
+        <h3 class="block-title">真实比例打印预览</h3>
+        <div id="previewStage" class="preview-stage">
+          <p class="empty">在版本详情中打印，或点击清单中的样图。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 现场扫码 -->
+  <section id="tab-scan" class="panel">
+    <div class="panel-head">
+      <h2>现场扫码复核</h2>
+      <p class="hint">更换人员先扫新展签二维码，再扫展柜码。装错柜会被拦截并记入异常；只有匹配的扫码才允许安装。</p>
+    </div>
+    <div class="scan-box">
+      <div class="row">
+        <label>新展签（已打印版次）</label>
+        <select id="scanVersion"></select>
+      </div>
+      <div class="row">
+        <label>现场扫到的展柜码</label>
+        <select id="scanCase"></select>
+      </div>
+      <div class="row">
+        <label>更换人员</label>
+        <input id="scanOperator" value="王现场">
+        <button class="btn copper" id="doScanBtn">扫码配对</button>
+      </div>
+      <div id="scanResult"></div>
+    </div>
+
+    <h3 class="block-title">扫码流水（含装错柜案例）</h3>
+    <table class="grid compact">
+      <thead><tr><th>#</th><th>展签版次</th><th>应装展柜</th><th>实扫展柜</th><th>结果</th><th>人员</th><th>明细</th><th>时间</th></tr></thead>
+      <tbody id="scanBody"></tbody>
+    </table>
+  </section>
+
+  <!-- 撤换记录 -->
+  <section id="tab-records" class="panel">
+    <div class="panel-head"><h2>撤换记录与异常登记</h2></div>
+    <div class="records-layout">
+      <div>
+        <h3 class="block-title">安装 / 撤换流水</h3>
+        <table class="grid compact">
+          <thead><tr><th>展柜</th><th>展品</th><th>版次</th><th>安装时间</th><th>撤下时间</th><th>原因</th><th>人员</th></tr></thead>
+          <tbody id="installBody"></tbody>
+        </table>
+        <div class="row" style="margin-top:12px">
+          <select id="removeCase"></select>
+          <input id="removeReason" placeholder="撤展原因，如：展品临时撤展">
+          <button class="btn ghost" id="removeBtn">登记撤展</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="block-title">异常事件记录</h3>
+        <div class="incident-form card">
+          <select id="incKind"></select>
+          <select id="incCase"><option value="">（关联展柜，可选）</option></select>
+          <input id="incDesc" placeholder="情况说明">
+          <button class="btn copper" id="incBtn">登记事件</button>
+        </div>
+        <div id="incidentList" class="incidents"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
