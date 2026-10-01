@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>展签更换管理 · 博物馆</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <div>
+      <h1>展签更换管理系统</h1>
+      <p class="sub">版本 · 双签校对 · 打印 · 扫码复核 · 撤换留痕</p>
+    </div>
+  </div>
+  <div class="rolebox">
+    <label for="role-user">当前操作人（角色切换）</label>
+    <select id="role-user"></select>
+    <span id="role-badge" class="badge role"></span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="catalog" class="active">展品目录与展柜</button>
+  <button data-tab="versions">展签版本与校对</button>
+  <button data-tab="print">打印清单</button>
+  <button data-tab="scan">现场扫码</button>
+  <button data-tab="records">撤换与问题记录</button>
+</nav>
+
+<main>
+  <!-- ============ 展品目录 ============ -->
+  <section id="tab-catalog" class="tab active">
+    <div class="grid-2">
+      <div class="panel">
+        <h2>展品目录</h2>
+        <table class="data" id="exhibit-table">
+          <thead><tr><th>编号</th><th>名称</th><th>语言版本</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h2>展柜列表 <span class="hint">当前版次 / 待换版次</span></h2>
+        <table class="data" id="case-table">
+          <thead><tr><th>展柜</th><th>展厅</th><th>展品</th>
+            <th>当前有效</th><th>待换</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 版本与校对 ============ -->
+  <section id="tab-versions" class="tab">
+    <div class="panel">
+      <h2>展签版本</h2>
+      <div class="split">
+        <div class="version-list" id="version-list"></div>
+        <div class="version-detail" id="version-detail">
+          <p class="empty">从左侧选择一个版本查看原文与修订对照、批注与校对结论。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 打印清单 ============ -->
+  <section id="tab-print" class="tab">
+    <div class="panel">
+      <h2>打印清单</h2>
+      <p class="hint">校对双签通过的最新版本方可生成可打印版本；样图按真实标签比例
+        120mm × 80mm 输出，二维码为模拟生成。色差 ΔE 超过 3.0 自动登记问题。</p>
+      <div id="print-list" class="print-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ 现场扫码 ============ -->
+  <section id="tab-scan" class="tab">
+    <div class="grid-2">
+      <div class="panel">
+        <h2>现场扫码复核</h2>
+        <div class="scan-box">
+          <label>现场所在展柜</label>
+          <select id="scan-case"></select>
+          <label>新展签二维码（模拟扫码：从待换标签读取）</label>
+          <select id="scan-job"></select>
+          <textarea id="scan-payload" rows="3" spellcheck="false"></textarea>
+          <button class="primary" id="scan-btn">扫码并复核安装</button>
+          <div id="scan-result" class="scan-result"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>扫码记录</h2>
+        <table class="data" id="scan-table">
+          <thead><tr><th>时间</th><th>展柜</th><th>结论</th><th>说明</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 撤换与问题 ============ -->
+  <section id="tab-records" class="tab">
+    <div class="panel">
+      <h2>问题记录 <span class="hint">六类问题全部留痕</span></h2>
+      <div id="issue-list" class="issue-list"></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h2>撤换记录（展柜绑定历史）</h2>
+        <table class="data" id="binding-table">
+          <thead><tr><th>展柜</th><th>版本</th><th>装上</th><th>撤下</th><th>备注</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h2>登记临时撤展</h2>
+        <div class="form-row">
+          <select id="remove-case"></select>
+          <input id="remove-reason" placeholder="撤展原因，如：文物赴外展借展">
+          <button id="remove-btn">撤下当前展签</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 打印预览 -->
+<div class="modal-mask" id="preview-mask" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <h3>打印预览 · 真实标签比例 <span id="preview-size"></span></h3>
+      <button id="preview-close">关闭</button>
+    </div>
+    <div class="preview-stage"><img id="preview-img" alt="展签预览"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
